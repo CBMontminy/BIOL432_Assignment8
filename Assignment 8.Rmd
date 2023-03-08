@@ -2,11 +2,13 @@
 title: "A8_Montminy_Corbin"
 author: "Corbin Montminy"
 date: "2023-03-06"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ## Adding packages
-```{r}
+```{r, message=F}
 library(ggplot2)
 library(vegan)
 library(ggtree)
@@ -85,7 +87,7 @@ If garlic mustard presence has a large impact on the populations, we would expec
 
 # Question 2: What has a stronger effect on plant communities: the presence/absence of garlic mustard or sampling population
 
-## To answer this question I will use the same distance matrix and create an NMDS plot and catagorize the data based on both garlic presence, and population to visualize which catagory is better at separating clusters of the data.  This would indicate which variable is more influencial on the population.
+To answer this question I will use the same distance matrix and create an NMDS plot and catagorize the data based on both garlic presence, and population to visualize which catagory is better at separating clusters of the data.  This would indicate which variable is more influencial on the population.
 
 In this plot, I will sort the presence of garlic by shape and the population by colour because I think it is easier to visualize the larger number of categories by colour compared to by shape
 
