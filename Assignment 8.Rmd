@@ -18,8 +18,6 @@ library(ape)
 ## Loading data
 ```{r}
 Data=read.csv("FloristicSurvey.csv")
-head(Data)
-ncol(Data)
 ```
 
 # Question 1:
@@ -30,15 +28,14 @@ To answer this question I will create a distance matrix based on the species to 
 ## Converting location (presence or absence of garlic mustard) to be a binary factor (0 if absent, 1 if present)
 ```{r}
 Data$Location=ifelse(Data$Location == "i", 1, 0)
+Labels$Location=as.factor(Labels$Location)
+Labels$Population=as.factor(Labels$Population)
 ```
 
 ## Creating a dataframe to use as labels
 ```{r}
 Labels=Data[1:10]
-Labels$Location=as.factor(Labels$Location)
-Labels$Population=as.factor(Labels$Population)
 ```
-rownames(Labels)=Data$Quadrate
 
 ## Creating a dataframe of species
 ```{r}
@@ -46,22 +43,23 @@ Species=Data[11:44]
 rownames(Species)=Data$Quadrate
 ```
 
-
 ## Creating a distance matrix based on the data
 ```{r}
 SpecDist=vegdist(Species, method="bray", binary=F)
 ```
 
+## Creating a neighbour-joining tree
 ```{r}
 SpecTree=nj(SpecDist)
 ```
+## Plotting Tree
 
 ```{r, fig.cap="This tree shows the breakdown of each sample based on the change in count numbers. A location of 0 indicates no presence of garlic mustard.  A location of 1 indicates the presence of garlic mustard.  It is not very interpretable"}
 ggtree(SpecTree, layout="rectangular")%<+% Labels +
     geom_tiplab(aes(colour=Location))
 ```
 ## Creating an NMDS to better visualize the separation
-```{r}
+```{r, message=F}
 NMDSDat=metaMDS(SpecDist, k=2, trymax=100)
 ```
 ## Creating plot data from NMDS
@@ -81,13 +79,13 @@ PDat=merge(PDat, Labels, by="Quadrate",all.x=T, all.y=F)
 ggplot(PDat, aes(x=NMDS1, y=NMDS2, colour=Location))+
   geom_point()
 ```
-If garlic mustard presence has a large impact on the populations, we would expect to see separate clusters of blue and red.  There is some level of clustering, but not to the extent we would expect if garlic mustard presence was extremely influential.  Therefore, I conclude that garlic presence or absence does not have a significant impact on the plant community.
+If garlic mustard presence has a large impact on the populations, we would expect to see separate clusters of blue and red.  There is some level of clustering, but not to the extent we would expect if garlic mustard presence was extremely influential.  Therefore, I conclude that garlic presence or absence has no significant impact on the plant community.
 
 
 
 # Question 2: What has a stronger effect on plant communities: the presence/absence of garlic mustard or sampling population
 
-To answer this question I will use the same distance matrix and create an NMDS plot and catagorize the data based on both garlic presence, and population to visualize which catagory is better at separating clusters of the data.  This would indicate which variable is more influencial on the population.
+To answer this question I will use the same distance matrix and create an NMDS plot and catagorize the data based on both garlic presence, and population to visualize which category is better at separating clusters of the data.  This would indicate which variable is more influential on the population.
 
 In this plot, I will sort the presence of garlic by shape and the population by colour because I think it is easier to visualize the larger number of categories by colour compared to by shape
 
