@@ -28,8 +28,8 @@ To answer this question I will create a distance matrix based on the species to 
 ## Converting location (presence or absence of garlic mustard) to be a binary factor (0 if absent, 1 if present)
 ```{r}
 Data$Location=ifelse(Data$Location == "i", 1, 0)
-Data$Location=as.factor(Labels$Location)
-Data$Population=as.factor(Labels$Population)
+Data$Location=as.factor(Data$Location)
+Data$Population=as.factor(Data$Population)
 ```
 
 ## Creating a dataframe to use as labels
