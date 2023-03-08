@@ -5,3 +5,93 @@ date: "2023-03-06"
 output: pdf_document
 ---
 
+## Adding packages
+```{r}
+library(ggplot2)
+library(vegan)
+library(ggtree)
+library(ape)
+```
+
+## Loading data
+```{r}
+Data=read.csv("FloristicSurvey.csv")
+head(Data)
+ncol(Data)
+```
+
+# Question 1:
+What effect (if any) does garlic mustard have on the plant community?
+
+To answer this question I will create a distance matrix based on the species to determine if there is a difference between garlic and no garlic variables
+
+## Converting location (presence or absence of garlic mustard) to be a binary factor (0 if absent, 1 if present)
+```{r}
+Data$Location=ifelse(Data$Location == "i", 1, 0)
+```
+
+## Creating a dataframe to use as labels
+```{r}
+Labels=Data[1:10]
+Labels$Location=as.factor(Labels$Location)
+Labels$Population=as.factor(Labels$Population)
+```
+rownames(Labels)=Data$Quadrate
+
+## Creating a dataframe of species
+```{r}
+Species=Data[11:44]
+rownames(Species)=Data$Quadrate
+```
+
+
+## Creating a distance matrix based on the data
+```{r}
+SpecDist=vegdist(Species, method="bray", binary=F)
+```
+
+```{r}
+SpecTree=nj(SpecDist)
+```
+
+```{r, fig.cap="This tree shows the breakdown of each sample based on the change in count numbers. A location of 0 indicates no presence of garlic mustard.  A location of 1 indicates the presence of garlic mustard.  It is not very interpretable"}
+ggtree(SpecTree, layout="rectangular")%<+% Labels +
+    geom_tiplab(aes(colour=Location))
+```
+## Creating an NMDS to better visualize the separation
+```{r}
+NMDSDat=metaMDS(SpecDist, k=2, trymax=100)
+```
+## Creating plot data from NMDS
+```{r}
+PDat=data.frame(NMDS1=NMDSDat$points[,1],
+                NMDS2=NMDSDat$points[,2],
+                Quadrate=row.names(Species))
+```
+
+## Adding quadrate labels by merging 
+```{r}
+PDat=merge(PDat, Labels, by="Quadrate",all.x=T, all.y=F)
+```
+
+## Plotting NMDS
+```{r, fig.cap="This plot shows the separation and clustering of the quadrates based on the NMDS. The different colours represent whether garlic mustard is present (1) or not (0)."}
+ggplot(PDat, aes(x=NMDS1, y=NMDS2, colour=Location))+
+  geom_point()
+```
+If garlic mustard presence has a large impact on the populations, we would expect to see separate clusters of blue and red.  There is some level of clustering, but not to the extent we would expect if garlic mustard presence was extremely influential.  Therefore, I conclude that garlic presence or absence does not have a significant impact on the plant community.
+
+
+
+# Question 2: What has a stronger effect on plant communities: the presence/absence of garlic mustard or sampling population
+
+## To answer this question I will use the same distance matrix and create an NMDS plot and catagorize the data based on both garlic presence, and population to visualize which catagory is better at separating clusters of the data.  This would indicate which variable is more influencial on the population.
+
+In this plot, I will sort the presence of garlic by shape and the population by colour because I think it is easier to visualize the larger number of categories by colour compared to by shape
+
+```{r, fig.cap="This plot shows the separation and clustering of the quadrates based on the NMDS. The different colours represent the population, and the shapes represents if garlic mustard is present (1) or not (0)."}
+ggplot(PDat, aes(x=NMDS1, y=NMDS2, shape=Location, colour=Population))+
+  geom_point()
+```
+The plot shows that the separation of quadrates is clustered better by the sampling population than by the presence or absence of garlic mustard.  The two shapes are spread throughout with little separation.  The colours are must more separated.  Population 13 resides mostly on the bottom left of the plot.  Population 14 resides mostly in the upper middle, slightly to the left with population 1 residing in the upper middle, slightly to the right.  Population 7 resides mostly in the bottom middle.  Population 3 resides mostly in the upper right.  Therefore, the sampling population has a larger impact on the plant communities than the presence or absence of garlic does. 
+
